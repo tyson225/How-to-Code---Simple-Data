@@ -1,0 +1,66 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname flower-size-quiz) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+(require 2htdp/image)
+(require 2htdp/universe)
+
+;; a flower that grows over time
+
+;; =================
+;; CONSTANTS
+(deinfe WIDTH 400)
+(define HEIGHT 600)
+(define MTS (empty-scene WIDTH HEIGHT "lightblue"))
+
+(define FLOWER-MIDDLE (cirlce 15 "solid" "black"))
+(define FLOWER-PETALS (ellipse 30 50 "solid" "orange"))
+(define FLOWER
+  (overlay (above FLOWER-MIDDLE (rectangle 1 10 0 "white"))
+           (overlay/align "center" "top" (above (beside (rotate 216 FLOWER-PETAL) (rectangle 1 1 0 "white") (rotate 144 FLOWER-PETAL))
+                                                (rotate 180 (beside (rotate 72 FLOWER-PETAL) (rectangle 10 0 0 "white") (rotate 288 FLOWER-PETAL))))
+                          (above (rectangle 1 61 0 "white") FLOWER-PETAL))))
+
+;; ==================
+;; Data Definitions
+
+(define-struct flower (x y size))
+;; flower is (make-flower Integer Integer Natural)
+;; interp. a flower with an x and y position as well as a side length
+(define F1 (make-flower 0 0 0))
+(define F2 (make-flower (/WIDTH 2) (/ HEIGHT 2) 15))
+
+#;
+(define (fn-for-flower)
+  (... (flower-x)
+       (flower-y)
+       (flower-size)))
+
+;; Template rules used:
+;; Compound: Three fields
+
+;; ===================
+;; FUNCTIONS
+
+;; Flower -> Flower
+;; starts the program
+;; (main (make-flower (/WIDTH 2) (/ HEIGHT 2) 0))
+
+(define (main f)
+  (big-bang f
+    (on-tick   next-f)          ; Flower -> Flower
+    (to-draw   render-f)        ; Flower -> Image
+    (on-mouse  handle-mouse)))  ; Flower Integer Integer MouseEvent -> Flower
+
+;; Flower -> Flower
+;; incrementor for the size of the flower that increaed per tick
+(check-expect (next-f (make-flower  0  0 10)) (make-flower  0  0 11))
+(check-expect (next-f (make-flower 10 20 30)) (make-flower 10 20 31))
+(check-expect (next-f (make-flower 40 50 60)) (make-flower 40 50 61))
+
+; (define (next-f) f)
+;; used the template for Flower
+
+(define (next-f)
+  (make-flower (flower-x f)
+               (flower-y f)
+               (+ 1 (flower-size f))))
