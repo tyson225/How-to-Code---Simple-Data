@@ -1,0 +1,55 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname reference-rule) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+(require 2htdp/image)
+
+;; ========================
+;; CONSTANTS
+
+(define FONT-SIZE 24)
+(define FONT-COLOR "black")
+
+(define Y-SCALE 1/200)
+(define BAR-WIDTH 30)
+(define BAR-COLOR "lightblue")
+
+;; ========================
+;; Data Definition
+
+(define-struct school (name tuition))
+;; school is (make-school String Natural)
+;; interp. name is the school's name, tuition is internation students tuition in US Dollars
+
+(define S1 (make-school "School 1" 27797))
+(define S2 (make-school "School 2" 23300))
+(define S3 (make-school "School 3" 28500))
+
+(define (fn-for-school s)
+  (... (school-name s)
+       (school-tuition s)))
+
+;; template rules used:
+;; - compound: (make-school String Natural)
+
+;; ListOfSchool is one of:
+;; - empty
+;; - (cons School ListOfSchool)
+;; interp. a list of schools
+(define LOS1 empty)
+(define LOS2 (cons S1 (cons S2 (cons S3 empty))))
+
+(define (fn-for-los)
+  (cond [(empty? los) (...)]
+        [else
+         (... (first los)
+              (fn-for-los (rest los)))]))
+
+;; template rules used:
+;; - one of: 2 cases
+;; - stomic distinct: empty
+;; - compound: (cons School ListOfSchool)
+;;
+;; - self-reference: (rest los) is ListOfSchool
+
+;; =======================
+;; FUNCTIONS
