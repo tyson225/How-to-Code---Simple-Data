@@ -1,0 +1,26 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname natural-numbers) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+;; Natural is one of:
+;; - -
+;; - (add1 Natural)
+;; interp. a natural number
+(define N0 0)         ; 0
+(define N1 (add1 N0)) ; 1
+(define N2 (add1 N1)) ; 2
+
+(define (fn-for-natural n)
+  (cond [(zero? n) (...)]
+        [else
+         (... ;n                          ; template rules wouldn't normally put this
+              ;                           ; here, but we will see that we end up coming 
+              ;                           ; back to add it
+          (fn-for-natural (sub1 n)))]))
+
+;; Template rules used:
+;; - one-of: two cases
+;; - atomic distinct: 0
+;; - compound: (add1 Natural)
+;; - self-reference: (sub1 n) is Natural
+
+  
