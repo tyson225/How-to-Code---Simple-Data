@@ -203,10 +203,10 @@
 
 (define (landed loi)
   (cond [(empty? loi) false]
-         [else
-          (if (>= (invader-y (firsr loi)) HEIGHT)
-              true
-              (landed (rest loi)))]))
+        [else
+         (if (>= (invader-y (firsr loi)) HEIGHT)
+             true
+             (landed (rest loi)))]))
 
 ;; ListOfInvader Image -> Image
 ;; Creates the list of invaders for the image
@@ -258,7 +258,144 @@
 ;; Adds new invaders to the list of invaders at a rate specified by
 ;; the INVADE-RATE constant
 
-; (define (create-invader loi) loi)
+; (define (create-invader loi) loi) ; stub
 
 (define (create-invader loi)
-  (cond [(< (random 150) INVADE-RATE
+  (cond [(< (random 150) INVADE-RATE)
+         (cons (make-invader (random WIDTH) 0 (random-direction 1)) loi)]
+        [else
+         loi]))
+
+;; Missile -> Missile
+;; moves the missile travelling upward
+(check-expect (move-missiles (make-miile 150 150)) (make-missile 150 (- MISSILE-SPEED)))
+
+; (define (move-missile m) m) ; stub
+
+(define (move-missiles m)
+  (make-missile (missile-x m) (- (missile-y m) MISSILE-SPEED)))
+
+;; ListOfMissle Natural -> ListOfMisslie
+;; firs the missile
+(check-expect (fire-missile empty 150) (cons (make-missile 150 (- HEIGHT TANK--HEIGHT / 2)) empty))
+
+; (define (fire-missile lom m) lom)
+
+(define (fire-missile lom m)
+  (cond [(empty? lom) (cons (make-missile m (- HEIGHT TANKT-HEIGHT / 2)) empty)]
+        [else
+         (cons (make-missle m (- HEIGHT TANK-HEIGHT / 2)) lom)]))
+
+;; ListOfMisslie Image -> Image
+;; creates images of the list of missiles
+
+; (define (render-missile lom img) img)
+
+(define (render-missile lom img)
+  (cond [(empty? lom) img]
+        [else
+         (place-image MISSILE
+                      (missile-x (first lom))
+                      (missile-y (first lom))
+                      (render-missile (rest lom) img))]))
+
+;; ListOfMissile -> ListOfMissile
+;; moves the missile upwards each tick by the specified amount
+;; of pixels. When the missile leaves the visual play area it
+;; will then be deleted
+(check-expect (move-missiles empty) empty)
+(check-expect (move-missiles LOM2) (cons (make-missile 150 (- MISSILE-SPEED 300)) empty))
+(check-expect (move-missiles (list (make-missile 150 -5))) empty)
+
+; (define advance-missile lom) lom) ; stub
+
+(define (move-missiles lom)
+  (cond [(empty? lom) empty]
+        [else
+         (if (< (missile-y (fisrt lom)) 0)
+             (move-missiles (rest lom))
+             (cons (move-missile (first lom))
+                   (move-missiles (est lom))))]))
+
+;; Invader ListOfMissle -> Boolean
+;; If the missile and the invader share the same relative coordinates
+;; return a true value
+(check-expect (hit-invader h lom) false)
+
+; (define (hit-invader h lom)
+
+(define (hit-invader h lom)
+  (cond [(empty? lom) false]
+        [else
+         (if (and (< (- (invader-x h) HIT-RANGE) missile-x (first lom)) (+ (invader-x h) HIT-RANGE))
+             (< (- (invader-y h) HIT-RANGE) (missile-y (first lom)) (+ (invader-y h) HIT-RANGE)))
+         true
+         (hit-invader h (rest lom))]))
+
+;; ListOfMissle ListOfInvader -> ListOfInvader
+;; Continues the list of invaders that have not been hit by a missile
+(check-expect (destroy-invader empty empty) empty)
+(check-expect (destroy LOM2 empty) empty)
+(check-expect (destroy-invader empty LOI2) LOI2)
+(check-expect (destroy-invader (cons M2 empty) LOI2) empty)
+
+; (define (destroy-invader lom loi) loi)
+
+(define (destroy-invader lom loi)
+  (cond [(empty? loi) empty]
+        [else
+         (if (hit-invader (first loi) lom)
+             (rest loi)
+             (cons (first loi) (destroy-invader lom (rest loi))))]))
+
+;; Tank -> Tank
+;; Move the tank either left or right by TANK-SPEED. When the tank reaches the
+;; edge of the play area it will stop
+(check-expect (move-tank (make-tank 150 1))   (make-tank (+ 150 TANK-SPEED) 1))
+(check-expect (move-tank (make-tank WIDTH 1)) (make-tank WIDTH 0))
+(check-expect (move-tank (make-tank 0 -1))    (make-tank 0 0))
+
+; (define (move-tank t) t) ; stub
+
+(define (move-tank t)
+  (cond [(> (tank-x t) WIDTH)
+         (make-tank WIDTH 0)]
+        [(< (tank-x t) 0)
+         (make-tank 0 0)]
+        [else
+         (make-tank (+ (tank-x t) (* (tank-dx t) TANK-SPEED)) (tank-dx t))]))
+
+;; Tank -> Tank
+;; control for making the tank move left
+
+; (define (move-tank-left t) t)
+
+(define (move-tank-left t) (make-tank (tank-x t) -1))
+
+;; Tank -> Tank
+;; control for making the tank move right
+
+; (define (move-tank-right t) t)
+
+(define (move-tank-rigth t) (make-tank (tank-x t) 1))
+
+;; Tank -> Image
+;; Creates the image of the tank
+(check-expect (render-tank (make-tank (/ WIDTH 2) 0)) (place-image TANK (/ WIDTH 2) (- HEIGHT TANK-HEIGHT / 2) BACKGROUND))
+
+; (define (render-tank t BACKGROUND) ; stub
+
+(define (render-tank t)
+  (place-image TANK (tank-x t) (- HEIGHT TANK-HEIGHT / 2) BACKGROUND))
+
+;; Game KeyEvent -> Game
+;; Allows the left and right keys move the tank
+;; Allows the space to fire missiles from the tank
+
+; (define (handle-key s ke) s)
+
+(define (handle-key s ke)
+  (cond [(key=? ke "left" (make-game (game-invader s) (game-missile s) (turn-left (gmae-t s))))]
+        [(key=? ke "right") (make-game (game-invader s) (game-missile s) (turn-right (game-t s)))]
+        [(key=? ke " ") (make-game (game-invader s) (fire-missile (game-missile s) (tank-x (game-t s)))( game-t s))]
+        [else s]))
