@@ -59,7 +59,7 @@
 #;
 (define (fn-for-game s)
   (... (fn-for-loinvader (game-invaders s))
-       (fn-for-lom (game-missiles s))
+       (fn-for-lom (game-missile s))
        (fn-for-tank (game-tank s))))
 
 (define-struct tank (x dir))
@@ -268,16 +268,16 @@
 
 ;; Missile -> Missile
 ;; moves the missile travelling upward
-(check-expect (move-missiles (make-miile 150 150)) (make-missile 150 (- MISSILE-SPEED)))
+(check-expect (move-missile (make-missile 150 150)) (make-missile 150 (- MISSILE-SPEED)))
 
 ; (define (move-missile m) m) ; stub
 
-(define (move-missiles m)
+(define (move-missile m)
   (make-missile (missile-x m) (- (missile-y m) MISSILE-SPEED)))
 
 ;; ListOfMissle Natural -> ListOfMisslie
 ;; firs the missile
-(check-expect (fire-missile empty 150) (cons (make-missile 150 (- HEIGHT TANK--HEIGHT / 2)) empty))
+(check-expect (fire-missile empty 150) (cons (make-missile 150 (- HEIGHT TANK-HEIGHT / 2)) empty))
 
 ; (define (fire-missile lom m) lom)
 
@@ -307,7 +307,7 @@
 (check-expect (move-missiles LOM2) (cons (make-missile 150 (- MISSILE-SPEED 300)) empty))
 (check-expect (move-missiles (list (make-missile 150 -5))) empty)
 
-; (define advance-missile lom) lom) ; stub
+; (define move--missiles lom) lom) ; stub
 
 (define (move-missiles lom)
   (cond [(empty? lom) empty]
@@ -395,7 +395,17 @@
 ; (define (handle-key s ke) s)
 
 (define (handle-key s ke)
-  (cond [(key=? ke "left" (make-game (game-invader s) (game-missile s) (turn-left (gmae-t s))))]
-        [(key=? ke "right") (make-game (game-invader s) (game-missile s) (turn-right (game-t s)))]
-        [(key=? ke " ") (make-game (game-invader s) (fire-missile (game-missile s) (tank-x (game-t s)))( game-t s))]
+  (cond [(key=? ke "left" (make-game (game-invader s) (game-missile s) (turn-left (game-tank s))))]
+        [(key=? ke "right") (make-game (game-invader s) (game-missile s) (turn-right (game-tank s)))]
+        [(key=? ke " ") (make-game (game-invader s) (fire-missile (game-missile s) (tank-x (game-tank s)))(game-tank s))]
         [else s]))
+
+;; Integer -> Integer
+;; Return a random positive or negative numeric value
+
+; (define (random-number n) n)
+
+(define (random-number n)
+  (if (= (modulo (random 10) 2) 1)
+      (- n)
+      n))
